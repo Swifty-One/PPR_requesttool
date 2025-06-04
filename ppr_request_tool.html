@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPR Request Form</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style type="text/tailwindcss">
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-100;
+        }
+        .form-label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+        .form-input {
+            @apply mt-1 block w-full px-3 py-2.5 
+                   bg-gray-50 border-2 border-sky-300 rounded-md shadow-sm 
+                   focus:outline-none focus:bg-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500 focus:ring-opacity-60 
+                   hover:border-sky-400 
+                   sm:text-sm transition-all duration-150 ease-in-out;
+        }
+        .form-input-readonly {
+            @apply mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm text-gray-700 cursor-default;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            @apply opacity-100 cursor-pointer p-2 
+                   text-sky-600 
+                   hover:text-sky-400 
+                   active:text-sky-700 
+                   transform hover:scale-110 active:scale-100
+                   transition-all duration-150 ease-in-out;
+        }
+        .btn {
+            @apply inline-flex items-center justify-center px-6 py-2.5 
+                   border border-transparent 
+                   text-sm font-semibold 
+                   rounded-md 
+                   shadow-md 
+                   text-white 
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 
+                   transition-all duration-150 ease-in-out
+                   transform hover:scale-105 
+                   active:scale-95;
+        }
+        .btn-primary { 
+            @apply bg-sky-600 hover:bg-sky-700 focus:ring-sky-500;
+        }
+        .btn-secondary { 
+            @apply bg-gray-600 hover:bg-gray-700 focus:ring-gray-500;
+        }
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-xl">
+        <header class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 text-center">PPR Request Form</h1>
+            <p class="text-sm text-gray-600 text-center mt-1">Fill in the details below to generate your PPR email.</p>
+        </header>
+
+        <form id="pprForm" class="space-y-6">
+            <div>
+                <label for="handlingAgent" class="form-label">Handling Agent Name:</label>
+                <input type="text" id="handlingAgent" name="handlingAgent" class="form-input" placeholder="e.g., SAGA Handling">
+            </div>
+
+            <div>
+                <label for="destinationFullName" class="form-label">Destination Aerodrome (Full Name):</label>
+                <input type="text" id="destinationFullName" name="destinationFullName" class="form-input" placeholder="e.g., Pescara">
+            </div>
+
+            <div>
+                <label for="destinationICAO" class="form-label">Destination Aerodrome (ICAO):</label>
+                <input type="text" id="destinationICAO" name="destinationICAO" class="form-input" placeholder="e.g., LIBP" maxlength="4">
+            </div>
+
+            <div>
+                <label for="aircraftReg" class="form-label">Aircraft Registration:</label>
+                <input type="text" id="aircraftReg" name="aircraftReg" class="form-input" placeholder="e.g., IOZZQ">
+            </div>
+
+            <div>
+                <label for="aircraftType" class="form-label">Aircraft Type:</label>
+                <input type="text" id="aircraftType" name="aircraftType" class="form-input" value="P208">
+            </div>
+
+            <div>
+                <label for="flightDate" class="form-label">Date of Operation (Pick from calendar):</label>
+                <input type="date" id="flightDate" name="flightDate" class="form-input">
+            </div>
+            
+            <div>
+                <label for="flightDateFormattedDisplay" class="form-label">Selected Date (Formatted):</label>
+                <input type="text" id="flightDateFormattedDisplay" name="flightDateFormattedDisplay" class="form-input-readonly" readonly>
+                 <p class="text-xs text-gray-500 mt-1">This field displays the date you picked in full format.</p>
+            </div>
+
+            <div>
+                <label for="originICAO" class="form-label">Origin Aerodrome (ICAO):</label>
+                <input type="text" id="originICAO" name="originICAO" class="form-input" placeholder="e.g., LIPY" maxlength="4">
+            </div>
+
+            <div>
+                <label for="etdOrigin" class="form-label">ETD from Origin (Zulu Time):</label>
+                <input type="time" id="etdOrigin" name="etdOrigin" class="form-input">
+            </div>
+            
+            <div>
+                <label for="eet" class="form-label">EET (HH:MM - Optional):</label>
+                <input type="text" id="eet" name="eet" class="form-input" placeholder="e.g., 01:15">
+                <p class="text-xs text-gray-500 mt-1">Estimated Enroute Time. Fills ETA if ETD is set.</p>
+            </div>
+
+            <div>
+                <label for="etaDestination" class="form-label">ETA at Destination (Zulu Time):</label>
+                <input type="time" id="etaDestination" name="etaDestination" class="form-input">
+            </div>
+
+            <div>
+                <label for="groundTime" class="form-label">Ground Time (HH:MM - Optional):</label>
+                <input type="text" id="groundTime" name="groundTime" class="form-input" placeholder="e.g., 00:30">
+                <p class="text-xs text-gray-500 mt-1">Time on ground. Fills ETD from Dest. if ETA is set.</p>
+            </div>
+
+            <div>
+                <label for="etdDestination" class="form-label">ETD from Destination (Zulu Time):</label>
+                <input type="time" id="etdDestination" name="etdDestination" class="form-input">
+            </div>
+
+            <div>
+                <label for="flightType" class="form-label">Type of Flight:</label>
+                <input type="text" id="flightType" name="flightType" class="form-input" value='School "solo student pilot"'>
+            </div>
+
+            <div>
+                <label for="operator" class="form-label">Operator:</label>
+                <input type="text" id="operator" name="operator" class="form-input" value="Professional Aviation Srl">
+            </div>
+            
+            <div>
+                <label for="remarks" class="form-label">Additional Remarks:</label>
+                <textarea id="remarks" name="remarks" rows="4" class="form-input">Please be aware that this flight is subject to cancellation due to company wind restriction policies. If cancellation becomes necessary, I will notify you as soon as possible.</textarea>
+            </div>
+
+            <div>
+                <label for="yourName" class="form-label">Your Name:</label>
+                <input type="text" id="yourName" name="yourName" class="form-input" placeholder="Enter your name">
+            </div>
+
+            <div>
+                <label for="yourPhone" class="form-label">Your Phone Number:</label>
+                <input type="text" id="yourPhone" name="yourPhone" class="form-input" placeholder="Enter your phone number">
+            </div>
+            
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-10 justify-center">
+                <button type="button" id="generateButton" class="btn btn-primary w-full sm:w-auto">Generate Email</button>
+                <button type="button" id="resetButton" class="btn btn-secondary w-full sm:w-auto">Reset Fields</button>
+            </div>
+        </form>
+
+        <div id="emailOutputSection" class="mt-10 pt-6 border-t border-gray-300" style="display: none;">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Generated Email Preview</h2>
+            <div class="bg-gray-50 p-4 rounded-md shadow-inner">
+                <label for="generatedEmail" class="form-label sr-only">Generated Email Text</label>
+                <textarea id="generatedEmail" rows="20" class="form-input w-full h-auto bg-white" readonly></textarea>
+            </div>
+            <div class="mt-6 text-center">
+                <button type="button" id="copyButton" class="btn btn-primary">Copy Email to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Copied to clipboard!</div>
+
+    <script>
+        // --- DOM Elements ---
+        const pprForm = document.getElementById('pprForm');
+        const generateButton = document.getElementById('generateButton');
+        const resetButton = document.getElementById('resetButton');
+        const emailOutputSection = document.getElementById('emailOutputSection');
+        const generatedEmailTextarea = document.getElementById('generatedEmail');
+        const copyButton = document.getElementById('copyButton');
+        const toast = document.getElementById('toast');
+        
+        const flightDateInput = document.getElementById('flightDate'); 
+        const flightDateFormattedDisplayInput = document.getElementById('flightDateFormattedDisplay'); 
+        const aircraftRegInput = document.getElementById('aircraftReg');
+        const destinationICAOInput = document.getElementById('destinationICAO');
+        const originICAOInput = document.getElementById('originICAO');
+        const remarksTextarea = document.getElementById('remarks');
+
+        const etdOriginInput = document.getElementById('etdOrigin');
+        const eetInput = document.getElementById('eet'); 
+        const etaDestinationInput = document.getElementById('etaDestination');
+        const groundTimeInput = document.getElementById('groundTime'); 
+        const etdDestinationInput = document.getElementById('etdDestination');
+
+
+        const defaultRemarksText = "Please be aware that this flight is subject to cancellation due to company wind restriction policies. If cancellation becomes necessary, I will notify you as soon as possible.";
+
+
+        // --- Event Listeners ---
+        generateButton.addEventListener('click', generateEmail);
+        copyButton.addEventListener('click', copyToClipboard);
+        resetButton.addEventListener('click', resetForm);
+        flightDateInput.addEventListener('change', updateFormattedDateDisplay); 
+
+        aircraftRegInput.addEventListener('input', convertToUppercase);
+        destinationICAOInput.addEventListener('input', convertToUppercase);
+        originICAOInput.addEventListener('input', convertToUppercase);
+
+        etdOriginInput.addEventListener('change', calculateETA);
+        eetInput.addEventListener('input', calculateETA); 
+        etaDestinationInput.addEventListener('change', calculateETDFromDest);
+        groundTimeInput.addEventListener('input', calculateETDFromDest); 
+
+
+        // --- Functions ---
+        function parseTimeToMinutes(timeStr) {
+            if (!timeStr || !/^\d{1,2}:\d{2}$/.test(timeStr)) return null;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            if (isNaN(hours) || isNaN(minutes) || hours < 0 || minutes < 0 ) { // Allow hours > 23 for durations
+                 if (hours > 23 && timeStr !== eetInput.value && timeStr !== groundTimeInput.value) return null; 
+                 if (minutes > 59) return null;
+            }
+            return hours * 60 + minutes;
+        }
+
+        function formatMinutesToTime(totalMinutes) {
+            if (totalMinutes === null || isNaN(totalMinutes)) return '';
+            const hours = Math.floor(totalMinutes / 60) % 24; 
+            const minutes = totalMinutes % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+        
+        function calculateETA() {
+            const etdOriginMinutes = parseTimeToMinutes(etdOriginInput.value);
+            const eetMinutes = parseTimeToMinutes(eetInput.value);
+
+            if (etdOriginMinutes !== null && eetMinutes !== null) {
+                const etaTotalMinutes = etdOriginMinutes + eetMinutes;
+                etaDestinationInput.value = formatMinutesToTime(etaTotalMinutes);
+                if(groundTimeInput.value) calculateETDFromDest();
+            }
+        }
+
+        function calculateETDFromDest() {
+            const etaDestMinutes = parseTimeToMinutes(etaDestinationInput.value);
+            const groundTimeMinutes = parseTimeToMinutes(groundTimeInput.value);
+
+            if (etaDestMinutes !== null && groundTimeMinutes !== null) {
+                const etdDestTotalMinutes = etaDestMinutes + groundTimeMinutes;
+                etdDestinationInput.value = formatMinutesToTime(etdDestTotalMinutes);
+            }
+        }
+
+        function convertToUppercase(e) {
+            e.target.value = e.target.value.toUpperCase();
+        }
+
+        function updateFormattedDateDisplay() {
+            const flightDateValue = flightDateInput.value; 
+            if (flightDateValue) {
+                try {
+                    const dateObj = new Date(flightDateValue + 'T00:00:00Z'); 
+                    if (!isNaN(dateObj.getTime())) {
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+                        flightDateFormattedDisplayInput.value = dateObj.toLocaleDateString('en-US', options);
+                    } else {
+                        flightDateFormattedDisplayInput.value = 'Invalid date selected';
+                    }
+                } catch (e) {
+                    console.warn("Could not format date for display:", e);
+                    flightDateFormattedDisplayInput.value = 'Error formatting date';
+                }
+            } else {
+                flightDateFormattedDisplayInput.value = ''; 
+            }
+        }
+
+        function formatTimeForEmail(timeString) { 
+            if (timeString && /^\d{2}:\d{2}$/.test(timeString)) {
+                return timeString + 'Z';
+            }
+            return ''; 
+        }
+
+        function generateEmail() {
+            const handlingAgent = document.getElementById('handlingAgent').value.trim();
+            const destinationFullName = document.getElementById('destinationFullName').value.trim();
+            const destinationICAO = destinationICAOInput.value.trim(); 
+            const aircraftReg = aircraftRegInput.value.trim(); 
+            const aircraftType = document.getElementById('aircraftType').value.trim().toUpperCase();
+            
+            const flightDateValue = flightDateInput.value; 
+            
+            const originICAO = originICAOInput.value.trim(); 
+            
+            const etdOriginForEmail = formatTimeForEmail(etdOriginInput.value);
+            const etaDestinationForEmail = formatTimeForEmail(etaDestinationInput.value);
+            const etdDestinationForEmail = formatTimeForEmail(etdDestinationInput.value);
+
+            const flightType = document.getElementById('flightType').value.trim(); 
+            const operator = document.getElementById('operator').value.trim(); 
+            const remarks = remarksTextarea.value.trim(); 
+            const yourName = document.getElementById('yourName').value.trim();
+            const yourPhone = document.getElementById('yourPhone').value.trim();
+
+            let formattedFullDateForEmail = '';
+            let shortDateForEmailSummary = ''; 
+
+            if (flightDateValue) { 
+                const dateObj = new Date(flightDateValue + 'T00:00:00Z'); 
+                if (!isNaN(dateObj.getTime())) {
+                    const fullDateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+                    formattedFullDateForEmail = dateObj.toLocaleDateString('en-US', fullDateOptions);
+
+                    const day = ('0' + dateObj.getUTCDate()).slice(-2);
+                    const month = ('0' + (dateObj.getUTCMonth() + 1)).slice(-2); 
+                    const year = dateObj.getUTCFullYear();
+                    shortDateForEmailSummary = `${day}/${month}/${year}`;
+
+                } else {
+                     showToast("Invalid date selected. Please check the date.", true);
+                     return;
+                }
+            }
+
+            if (!handlingAgent || !destinationFullName || !destinationICAO || !aircraftReg || 
+                !formattedFullDateForEmail || 
+                !originICAO || !etdOriginForEmail || !etaDestinationForEmail || !etdDestinationForEmail || 
+                !yourName || !yourPhone) {
+                showToast("Please fill in all required fields, including valid dates and times.", true);
+                return;
+            }
+            
+            let emailBody = `Hello ${handlingAgent},\n\n`;
+            emailBody += `I am writing to request parking in ${destinationFullName} (${destinationICAO}) for the aircraft with registration ${aircraftReg}, type ${aircraftType}, on ${formattedFullDateForEmail}. `;
+            emailBody += `This is a ${flightType}, operated by ${operator}.\n\n`;
+            emailBody += `The flight details are as follows:\n`;
+            emailBody += `- Departure from ${originICAO} at ${etdOriginForEmail}, arriving at ${destinationICAO} at ${etaDestinationForEmail}.\n`; 
+            emailBody += `- Departure from ${destinationICAO} at ${etdDestinationForEmail}.\n`; 
+            emailBody += `- A/C reg: ${aircraftReg}\n`;
+            emailBody += `- A/C type: ${aircraftType}\n`;
+            emailBody += `- Type of flight: ${flightType}\n`; 
+            emailBody += `- Operator: ${operator}\n`;         
+            if (shortDateForEmailSummary) { 
+                emailBody += `- ${shortDateForEmailSummary}\n\n`;
+            } else {
+                emailBody += `\n`; 
+            }
+
+            if (remarks) { 
+                emailBody += `${remarks}\n\n`;
+            }
+
+            emailBody += `Thank you for your assistance.\n\n`;
+            emailBody += `--\n`;
+            emailBody += `Best regards\n`;
+            emailBody += `${yourName}\n`;
+            emailBody += `Ph. ${yourPhone}`;
+
+            generatedEmailTextarea.value = emailBody;
+            emailOutputSection.style.display = 'block';
+            generatedEmailTextarea.style.height = 'auto'; 
+            generatedEmailTextarea.style.height = generatedEmailTextarea.scrollHeight + 'px'; 
+        }
+
+        function copyToClipboard() {
+            if (!generatedEmailTextarea.value) {
+                showToast("Nothing to copy!", true);
+                return;
+            }
+            generatedEmailTextarea.select();
+            generatedEmailTextarea.setSelectionRange(0, 99999); 
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast("Email copied to clipboard!");
+                } else {
+                    showToast("Failed to copy. Please copy manually.", true);
+                }
+            } catch (err) {
+                showToast("Failed to copy. Please copy manually.", true);
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            
+            window.getSelection().removeAllRanges();
+        }
+
+        function resetForm() {
+            const aircraftTypeValue = "P208"; 
+            const flightTypeValue = 'School "solo student pilot"'; 
+            const operatorValue = "Professional Aviation Srl"; 
+
+            pprForm.reset(); 
+            
+            document.getElementById('aircraftType').value = aircraftTypeValue;
+            document.getElementById('flightType').value = flightTypeValue;
+            document.getElementById('operator').value = operatorValue;
+            
+            remarksTextarea.value = defaultRemarksText;
+            
+            flightDateFormattedDisplayInput.value = ''; 
+            eetInput.value = ''; 
+            groundTimeInput.value = ''; 
+
+
+             const fieldsToClearManually = [
+                'handlingAgent', 'destinationFullName', 'destinationICAO', 'aircraftReg',
+                'flightDate', 
+                'originICAO', 'etdOrigin', 'etaDestination', 'etdDestination', 
+                'yourName', 'yourPhone'
+             ];
+            fieldsToClearManually.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = ''; 
+            });
+
+
+            generatedEmailTextarea.value = '';
+            emailOutputSection.style.display = 'none';
+            showToast("Form fields reset.");
+        }
+
+        let toastTimeout;
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.className = 'show'; 
+            if (isError) {
+                toast.style.backgroundColor = '#b91c1c'; 
+            } else {
+                toast.style.backgroundColor = '#16a34a'; 
+            }
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.className = toast.className.replace('show', ''); 
+            }, 3000);
+        }
+
+        remarksTextarea.value = defaultRemarksText;
+    </script>
+</body>
+</html>
